@@ -17,13 +17,13 @@ Linear-style command palette + keyboard shortcut registry for Nuxt. Composable-f
 ## Install
 
 ```bash
-pnpm add nuxt-cmdk reka-ui
+pnpm add @arcon.mobi/nuxt-cmdk reka-ui
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['nuxt-cmdk'],
+  modules: ['@arcon.mobi/nuxt-cmdk'],
   cmdk: {
     paletteShortcut: 'mod+k',  // default
     search: 'fuzzy',           // 'fuzzy' | 'substring'
@@ -277,18 +277,18 @@ pnpm dev           # runs the playground
 
 ## Using with Claude Code (and other AI agents)
 
-This package ships an [`AGENTS.md`](./AGENTS.md) at its root with a dense, agent-friendly API summary — including behaviors that are easy to miss when scanning the source (e.g. `action` is excluded from structural diff, the `cmdk:toggle` id is reserved, exact-shortcut beats longer-sequence). Agents can read `node_modules/nuxt-cmdk/AGENTS.md` to load the API in one shot.
+This package ships an [`AGENTS.md`](./AGENTS.md) at its root with a dense, agent-friendly API summary — including behaviors that are easy to miss when scanning the source (e.g. `action` is excluded from structural diff, the `cmdk:toggle` id is reserved, exact-shortcut beats longer-sequence). Agents can read `node_modules/@arcon.mobi/nuxt-cmdk/AGENTS.md` to load the API in one shot.
 
 If you'd like Claude Code to use the palette pattern by default in your project, drop something like this into your `CLAUDE.md`:
 
 ```md
 ## Command palette and shortcuts
 
-This project uses [nuxt-cmdk](https://www.npmjs.com/package/nuxt-cmdk).
+This project uses [@arcon.mobi/nuxt-cmdk](https://www.npmjs.com/package/@arcon.mobi/nuxt-cmdk).
 - Register commands with `useCommands([...])` in the component that owns them — do not maintain a central registry.
 - Always set an explicit `id` on each command.
 - Read reactive state inside the `action` body, not by swapping the function reference.
-- See `node_modules/nuxt-cmdk/AGENTS.md` for the full API.
+- See `node_modules/@arcon.mobi/nuxt-cmdk/AGENTS.md` for the full API.
 ```
 
 ## Credits

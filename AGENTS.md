@@ -9,13 +9,13 @@ docs and theming examples, see [`README.md`](./README.md).
 ## Setup
 
 ```bash
-pnpm add nuxt-cmdk reka-ui
+pnpm add @arcon.mobi/nuxt-cmdk reka-ui
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['nuxt-cmdk'],
+  modules: ['@arcon.mobi/nuxt-cmdk'],
   cmdk: {
     paletteShortcut: 'mod+k',  // default; set false to disable
     search: 'fuzzy',           // 'fuzzy' | 'substring'
@@ -86,7 +86,7 @@ Names use `cmdk.prefix` (default `Cmdk`).
 ## Types
 
 ```ts
-import type { Command, CommandInput, ModuleOptions } from 'nuxt-cmdk'
+import type { Command, CommandInput, ModuleOptions } from '@arcon.mobi/nuxt-cmdk'
 
 interface Command {
   id: string                          // stable, required

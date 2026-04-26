@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-cmdk",
+  "name": "@arcon.mobi/nuxt-cmdk",
   "version": "0.1.0",
   "description": "Command palette + keyboard shortcut registry for Nuxt — async actions, multi-step sequences (g d), fuzzy search, scoped CSS theming.",
   "keywords": [
@@ -45,6 +45,9 @@
   ],
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "packageManager": "pnpm@10.33.0",
   "scripts": {

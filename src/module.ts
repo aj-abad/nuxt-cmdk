@@ -11,7 +11,7 @@ export type { Command, CommandInput }
  * ```ts
  * // nuxt.config.ts
  * export default defineNuxtConfig({
- *   modules: ['nuxt-cmdk'],
+ *   modules: ['@arcon.mobi/nuxt-cmdk'],
  *   cmdk: {
  *     paletteShortcut: 'mod+k',
  *     search: 'fuzzy',
@@ -34,7 +34,7 @@ export interface ModuleOptions {
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'nuxt-cmdk',
+    name: '@arcon.mobi/nuxt-cmdk',
     configKey: 'cmdk',
     compatibility: { nuxt: '>=3.0.0' },
   },
