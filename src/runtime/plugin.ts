@@ -12,13 +12,22 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   setSequenceTimeoutMs(config.sequenceTimeoutMs)
 
+  // Hook handlers may be async or throw; isolate their failures so a buggy
+  // user listener can't take down command execution.
+  const callHookSafely = (hookName: 'cmdk:error' | 'cmdk:executed', ...args: unknown[]) => {
+    Promise.resolve(nuxtApp.callHook(hookName as never, ...(args as never[])))
+      .catch((hookErr) => {
+        console.error(`[cmdk] hook "${hookName}" threw:`, hookErr)
+      })
+  }
+
   setCommandHooks({
     onError: (err, cmd) => {
       console.error(`[cmdk] command "${cmd.id}" threw:`, err)
-      nuxtApp.callHook('cmdk:error' as never, err as never, cmd as never)
+      callHookSafely('cmdk:error', err, cmd)
     },
     onExecuted: (cmd) => {
-      nuxtApp.callHook('cmdk:executed' as never, cmd as never)
+      callHookSafely('cmdk:executed', cmd)
     },
   })
 

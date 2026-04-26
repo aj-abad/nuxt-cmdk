@@ -21,7 +21,20 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform)
+/**
+ * Detect Mac/iOS for ⌘ vs Ctrl labelling.
+ *
+ * `navigator.platform` is deprecated. Modern Chromium exposes
+ * `navigator.userAgentData.platform`, but it's gated to HTTPS and not
+ * implemented in Safari/Firefox — so we fall back to a userAgent regex,
+ * which also catches iPad/iPhone (their external keyboards use ⌘).
+ */
+const isMac = ((): boolean => {
+  if (typeof navigator === 'undefined') return false
+  const uaData = (navigator as { userAgentData?: { platform?: string } }).userAgentData
+  if (uaData?.platform) return /mac/i.test(uaData.platform)
+  return /Mac|iPad|iPhone|iPod/i.test(navigator.userAgent)
+})()
 
 type ShortcutPart =
   | { type: 'kbd', value: string }

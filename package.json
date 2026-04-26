@@ -2,6 +2,27 @@
   "name": "nuxt-cmdk",
   "version": "0.1.0",
   "description": "Command palette + keyboard shortcut registry for Nuxt — async actions, multi-step sequences (g d), fuzzy search, scoped CSS theming.",
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "vue",
+    "command-palette",
+    "cmdk",
+    "keyboard-shortcuts",
+    "hotkeys",
+    "fuzzy-search",
+    "fuse",
+    "reka-ui"
+  ],
+  "homepage": "https://github.com/aj-abad/nuxt-cmdk#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aj-abad/nuxt-cmdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aj-abad/nuxt-cmdk/issues"
+  },
+  "author": "AJ <dev@ajabad.com>",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -21,6 +42,10 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "prepack": "nuxt-module-build build",
     "dev": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi dev playground",

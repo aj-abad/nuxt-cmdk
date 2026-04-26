@@ -263,14 +263,3 @@ function ensureListener() {
   document.addEventListener('focusin', onDocumentFocusIn)
   listenerAttached = true
 }
-
-export function destroyListener() {
-  if (typeof window === 'undefined') return
-  window.removeEventListener('keydown', handleKeyDown)
-  window.removeEventListener('blur', onWindowBlur)
-  document.removeEventListener('mousedown', onDocumentMouseDown)
-  document.removeEventListener('focusin', onDocumentFocusIn)
-  listenerAttached = false
-  shortcutBlockerCount = 0
-  resetSequence()
-}

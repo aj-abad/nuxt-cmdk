@@ -14,8 +14,8 @@
           @open-auto-focus="handleOpenAutoFocus"
           @close-auto-focus="handleCloseAutoFocus"
         >
-          <DialogTitle as="span" class="cmdk-sr-only">Command Palette</DialogTitle>
-          <DialogDescription as="span" class="cmdk-sr-only">
+          <DialogTitle as="h2" class="cmdk-sr-only">Command Palette</DialogTitle>
+          <DialogDescription as="p" class="cmdk-sr-only">
             Search for a command or use keyboard shortcuts to navigate.
           </DialogDescription>
 
@@ -39,7 +39,12 @@
 
           <div class="cmdk-list-wrap" :style="{ height: `${listHeight}px` }">
             <div ref="scrollRef" class="cmdk-scroll">
-              <ul id="cmdk-listbox" role="listbox" aria-label="Commands">
+              <ul
+                v-if="filteredCommands.length > 0"
+                id="cmdk-listbox"
+                role="listbox"
+                aria-label="Commands"
+              >
                 <template v-for="item in flatItems" :key="item.cmd.id">
                   <li v-if="item.groupHeader" class="cmdk-group-label" role="presentation">
                     {{ item.groupHeader }}
@@ -98,10 +103,20 @@
                     </div>
                   </li>
                 </template>
-                <li v-if="filteredCommands.length === 0" class="cmdk-empty">
-                  No results found.
-                </li>
               </ul>
+              <!--
+                Empty state lives OUTSIDE the listbox: ARIA disallows arbitrary
+                content as listbox children (only role="option"). role="status"
+                implies aria-live="polite" so screen readers announce when the
+                user types a query that matches nothing.
+              -->
+              <div
+                v-if="filteredCommands.length === 0"
+                class="cmdk-empty"
+                role="status"
+              >
+                No results found.
+              </div>
             </div>
           </div>
         </DialogContent>
