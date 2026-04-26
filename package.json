@@ -1,0 +1,47 @@
+{
+  "name": "nuxt-cmdk",
+  "version": "0.1.0",
+  "description": "Command palette + keyboard shortcut registry for Nuxt — async actions, multi-step sequences (g d), fuzzy search, scoped CSS theming.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/types.d.mts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "dev": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "release": "pnpm prepack && pnpm publish"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.15.0",
+    "fuse.js": "^7.0.0"
+  },
+  "peerDependencies": {
+    "reka-ui": ">=2.0.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^1.0.1",
+    "@nuxt/schema": "^4.3.0",
+    "nuxt": "^4.3.0",
+    "reka-ui": "^2.9.1",
+    "typescript": "^5.7.0",
+    "vue": "^3.5.30"
+  }
+}
