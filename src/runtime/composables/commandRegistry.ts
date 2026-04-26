@@ -11,8 +11,15 @@ export interface Command {
   shortcut?: string
   /** Search aliases — useful for fuzzy matching ("home" → "Go to Dashboard"). */
   keywords?: string[]
-  /** Sync or async handler. Errors are caught and broadcast via `cmdk:error`. */
-  action: () => void | Promise<void>
+  /**
+   * Sync or async handler. Errors are caught and broadcast via `cmdk:error`.
+   *
+   * Return type is `unknown` so common patterns like `() => navigateTo('/foo')`
+   * work without explicit `void` wrapping — `navigateTo` returns a richer union
+   * than just `void | Promise<void>`. Whatever's returned is awaited but its
+   * value isn't used.
+   */
+  action: () => unknown
   /** Higher = appears first in palette and wins on exact-shortcut match. Default 0. */
   priority?: number
   /** When true, the shortcut still fires but the command is omitted from the palette. */

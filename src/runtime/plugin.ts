@@ -14,24 +14,31 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Hook handlers may be async or throw; isolate their failures so a buggy
   // user listener can't take down command execution.
-  const callHookSafely = (hookName: 'cmdk:error' | 'cmdk:executed', ...args: unknown[]) => {
-    Promise.resolve(nuxtApp.callHook(hookName as never, ...(args as never[])))
+  const safeOnError = (err: unknown, cmd: Command) => {
+    console.error(`[cmdk] command "${cmd.id}" threw:`, err)
+    Promise.resolve(nuxtApp.callHook('cmdk:error', err, cmd))
       .catch((hookErr) => {
-        console.error(`[cmdk] hook "${hookName}" threw:`, hookErr)
+        console.error('[cmdk] hook "cmdk:error" threw:', hookErr)
+      })
+  }
+  const safeOnExecuted = (cmd: Command) => {
+    Promise.resolve(nuxtApp.callHook('cmdk:executed', cmd))
+      .catch((hookErr) => {
+        console.error('[cmdk] hook "cmdk:executed" threw:', hookErr)
       })
   }
 
   setCommandHooks({
-    onError: (err, cmd) => {
-      console.error(`[cmdk] command "${cmd.id}" threw:`, err)
-      callHookSafely('cmdk:error', err, cmd)
-    },
-    onExecuted: (cmd) => {
-      callHookSafely('cmdk:executed', cmd)
-    },
+    onError: safeOnError,
+    onExecuted: safeOnExecuted,
   })
 
-  if (config.paletteShortcut !== false) {
+  // Truthy check rather than `!== false` because Nuxt's runtime config type
+  // inference narrows literal config values: when a user sets
+  // `paletteShortcut: 'mod+k'`, the inferred runtime type is `string` (not
+  // `string | false`), so `!== false` would be flagged as a type-overlap error.
+  // Falsy here covers both the `false` opt-out and accidental empty strings.
+  if (config.paletteShortcut) {
     const { toggle } = useCommandPalette()
     registerCommand({
       id: 'cmdk:toggle',
