@@ -1,15 +1,22 @@
 <template>
-  <Teleport to="body">
-    <div class="cmdk-sr-only" role="status" aria-live="assertive" aria-atomic="true">
-      {{ sequenceState.announcement }}
-    </div>
-    <Transition name="cmdk-sequence">
-      <div v-if="sequenceState.active" class="cmdk-sequence" aria-hidden="true">
-        <CmdkShortcut :keys="sequenceState.pressedKeys" />
-        <span class="cmdk-sequence-ellipsis">...</span>
+  <!--
+    Wrapped in <ClientOnly> because sequenceState only ever activates from a
+    keyboard listener that's client-only, and Teleport to="body" has no target
+    during SSR.
+  -->
+  <ClientOnly>
+    <Teleport to="body">
+      <div class="cmdk-sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {{ sequenceState.announcement }}
       </div>
-    </Transition>
-  </Teleport>
+      <Transition name="cmdk-sequence">
+        <div v-if="sequenceState.active" class="cmdk-sequence" aria-hidden="true">
+          <CmdkShortcut :keys="sequenceState.pressedKeys" />
+          <span class="cmdk-sequence-ellipsis">...</span>
+        </div>
+      </Transition>
+    </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
@@ -42,15 +49,14 @@ import CmdkShortcut from './CmdkShortcut.vue'
   letter-spacing: 0.05em;
 }
 
-.cmdk-sequence-enter-active,
-.cmdk-sequence-leave-active {
-  transition: opacity 150ms ease, transform 150ms ease;
-}
-.cmdk-sequence-enter-from,
-.cmdk-sequence-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(0.5rem) scale(0.95);
-}
+/*
+ * <Transition name="cmdk-sequence"> is kept as a hook with no default rules.
+ * Consumers can opt into enter/leave animations like:
+ *   .cmdk-sequence-enter-from,
+ *   .cmdk-sequence-leave-to   { opacity: 0; }
+ *   .cmdk-sequence-enter-active,
+ *   .cmdk-sequence-leave-active { transition: opacity 150ms ease; }
+ */
 
 .cmdk-sr-only {
   position: absolute;

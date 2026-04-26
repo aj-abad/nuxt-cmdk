@@ -1,97 +1,113 @@
 <template>
-  <DialogRoot :open="isOpen" @update:open="handleOpenChange">
-    <DialogPortal>
-      <DialogOverlay class="cmdk-overlay" />
-      <DialogContent
-        class="cmdk-content"
-        @open-auto-focus="handleOpenAutoFocus"
-        @close-auto-focus="handleCloseAutoFocus"
-      >
-        <DialogTitle as="span" class="cmdk-sr-only">Command Palette</DialogTitle>
-        <DialogDescription as="span" class="cmdk-sr-only">
-          Search for a command or use keyboard shortcuts to navigate.
-        </DialogDescription>
+  <!--
+    Wrapped in <ClientOnly> because the palette is fundamentally client-side:
+    it depends on a keyboard listener, focus management, and DOM teleportation.
+    This also avoids hydration mismatches from <CmdkShortcut>'s navigator-based
+    Mac/Win key labelling.
+  -->
+  <ClientOnly>
+    <DialogRoot :open="isOpen" @update:open="handleOpenChange">
+      <DialogPortal>
+        <DialogOverlay class="cmdk-overlay" />
+        <DialogContent
+          class="cmdk-content"
+          @open-auto-focus="handleOpenAutoFocus"
+          @close-auto-focus="handleCloseAutoFocus"
+        >
+          <DialogTitle as="span" class="cmdk-sr-only">Command Palette</DialogTitle>
+          <DialogDescription as="span" class="cmdk-sr-only">
+            Search for a command or use keyboard shortcuts to navigate.
+          </DialogDescription>
 
-        <div class="cmdk-input-wrap">
-          <input
-            ref="inputRef"
-            v-model="query"
-            type="text"
-            class="cmdk-input"
-            placeholder="Type a command or search…"
-            role="combobox"
-            aria-label="Command palette"
-            aria-autocomplete="list"
-            aria-haspopup="listbox"
-            aria-expanded="true"
-            aria-controls="cmdk-listbox"
-            :aria-activedescendant="activeDescendant"
-            @keydown="handleKeydown"
-          />
-        </div>
-
-        <div class="cmdk-list-wrap" :style="{ height: `${listHeight}px` }">
-          <div ref="scrollRef" class="cmdk-scroll">
-            <ul id="cmdk-listbox" role="listbox" aria-label="Commands">
-              <template v-for="item in flatItems" :key="item.cmd.id">
-                <li v-if="item.groupHeader" class="cmdk-group-label" role="presentation">
-                  {{ item.groupHeader }}
-                </li>
-                <li
-                  :id="`cmdk-option-${item.cmd.id}`"
-                  :ref="(el) => setOptionRef(item.index, el as HTMLElement | null)"
-                  role="option"
-                  :aria-selected="item.index === activeIndex"
-                  :class="['cmdk-option', { 'cmdk-option-active': item.index === activeIndex }]"
-                  @click="selectCommand(item.cmd)"
-                  @mouseenter="activeIndex = item.index"
-                >
-                  <span class="cmdk-option-label">{{ item.cmd.name }}</span>
-                  <div class="cmdk-option-meta">
-                    <span
-                      v-if="runningCommandIds.has(item.cmd.id)"
-                      class="cmdk-spinner"
-                      aria-label="Running"
-                    >
-                      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="9"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2.5"
-                          stroke-linecap="round"
-                          stroke-dasharray="40 60"
-                        >
-                          <animateTransform
-                            attributeName="transform"
-                            type="rotate"
-                            from="0 12 12"
-                            to="360 12 12"
-                            dur="800ms"
-                            repeatCount="indefinite"
-                          />
-                        </circle>
-                      </svg>
-                    </span>
-                    <CmdkShortcut
-                      v-if="item.cmd.shortcut"
-                      :keys="item.cmd.shortcut"
-                      class="cmdk-option-shortcut"
-                    />
-                  </div>
-                </li>
-              </template>
-              <li v-if="filteredCommands.length === 0" class="cmdk-empty">
-                No results found.
-              </li>
-            </ul>
+          <div class="cmdk-input-wrap">
+            <input
+              ref="inputRef"
+              v-model="query"
+              type="text"
+              class="cmdk-input"
+              placeholder="Type a command or search…"
+              role="combobox"
+              aria-label="Command palette"
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
+              aria-expanded="true"
+              aria-controls="cmdk-listbox"
+              :aria-activedescendant="activeDescendant"
+              @keydown="handleKeydown"
+            />
           </div>
-        </div>
-      </DialogContent>
-    </DialogPortal>
-  </DialogRoot>
+
+          <div class="cmdk-list-wrap" :style="{ height: `${listHeight}px` }">
+            <div ref="scrollRef" class="cmdk-scroll">
+              <ul id="cmdk-listbox" role="listbox" aria-label="Commands">
+                <template v-for="item in flatItems" :key="item.cmd.id">
+                  <li v-if="item.groupHeader" class="cmdk-group-label" role="presentation">
+                    {{ item.groupHeader }}
+                  </li>
+                  <li
+                    :id="`cmdk-option-${item.cmd.id}`"
+                    :ref="(el) => setOptionRef(item.index, el as HTMLElement | null)"
+                    role="option"
+                    :aria-selected="item.index === activeIndex"
+                    :class="['cmdk-option', { 'cmdk-option-active': item.index === activeIndex }]"
+                    @click="selectCommand(item.cmd)"
+                    @mouseenter="activeIndex = item.index"
+                  >
+                    <span class="cmdk-option-label">{{ item.cmd.name }}</span>
+                    <div class="cmdk-option-meta">
+                      <!--
+                        Loading indicator. The default is an SVG spinner using SMIL
+                        (animates regardless of prefers-reduced-motion). Override via
+                        <template #running="{ command }">…</template> to render anything,
+                        or nothing if you'd rather not show one.
+                      -->
+                      <slot
+                        v-if="runningCommandIds.has(item.cmd.id)"
+                        name="running"
+                        :command="item.cmd"
+                      >
+                        <span class="cmdk-spinner" aria-label="Running">
+                          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="9"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2.5"
+                              stroke-linecap="round"
+                              stroke-dasharray="40 60"
+                            >
+                              <animateTransform
+                                attributeName="transform"
+                                type="rotate"
+                                from="0 12 12"
+                                to="360 12 12"
+                                dur="800ms"
+                                repeatCount="indefinite"
+                              />
+                            </circle>
+                          </svg>
+                        </span>
+                      </slot>
+                      <CmdkShortcut
+                        v-if="item.cmd.shortcut"
+                        :keys="item.cmd.shortcut"
+                        class="cmdk-option-shortcut"
+                      />
+                    </div>
+                  </li>
+                </template>
+                <li v-if="filteredCommands.length === 0" class="cmdk-empty">
+                  No results found.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </DialogContent>
+      </DialogPortal>
+    </DialogRoot>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
@@ -152,17 +168,23 @@ const MIN_HEIGHT = 52
 
 const visibleCommands = computed(() => commands.value.filter(c => !c.hidden))
 
+// Build the Fuse index only when the command set changes — not on every keystroke.
+// Returns null when fuzzy search is disabled so the substring branch can short-circuit.
+const fuse = computed(() => {
+  if (config.search !== 'fuzzy') return null
+  return new Fuse(visibleCommands.value, {
+    keys: ['name', 'group', 'keywords'],
+    threshold: 0.4,
+    ignoreLocation: true,
+  })
+})
+
 const filteredCommands = computed<Command[]>(() => {
   const q = query.value.trim()
   if (!q) return visibleCommands.value
 
-  if (config.search === 'fuzzy') {
-    const fuse = new Fuse(visibleCommands.value, {
-      keys: ['name', 'group', 'keywords'],
-      threshold: 0.4,
-      ignoreLocation: true,
-    })
-    return fuse.search(q).map(r => r.item)
+  if (fuse.value) {
+    return fuse.value.search(q).map(r => r.item)
   }
 
   const lower = q.toLowerCase()
@@ -282,16 +304,22 @@ function selectCommand(cmd: Command) {
 </script>
 
 <style scoped>
+/*
+ * No animations by default. Reka emits data-state="open"|"closed" on the overlay
+ * and content, and waits for any matching CSS animation/transition to finish
+ * before unmounting. Consumers can hook in like:
+ *   .cmdk-overlay[data-state='open']  { animation: my-fade-in 150ms; }
+ *   .cmdk-overlay[data-state='closed'] { animation: my-fade-out 150ms; }
+ *   .cmdk-content[data-state='open']  { animation: my-scale-in 150ms; }
+ *   .cmdk-content[data-state='closed'] { animation: my-scale-out 150ms; }
+ * prefers-reduced-motion is the consumer's call.
+ */
 .cmdk-overlay {
   position: fixed;
   inset: 0;
   background: var(--cmdk-overlay-bg, rgb(0 0 0 / 0.2));
   backdrop-filter: blur(4px);
   z-index: var(--cmdk-z-index, 300);
-  animation: cmdk-overlay-in 100ms ease-out;
-}
-.cmdk-overlay[data-state='closed'] {
-  animation: cmdk-overlay-out 100ms ease-in forwards;
 }
 
 .cmdk-content {
@@ -309,10 +337,6 @@ function selectCommand(cmd: Command) {
   overflow: hidden;
   border: 1px solid var(--cmdk-border, rgb(0 0 0 / 0.05));
   font-family: var(--cmdk-font, inherit);
-  animation: cmdk-content-in 100ms ease-out;
-}
-.cmdk-content[data-state='closed'] {
-  animation: cmdk-content-out 100ms ease-in forwards;
 }
 
 .cmdk-input-wrap {
@@ -335,7 +359,8 @@ function selectCommand(cmd: Command) {
 }
 
 .cmdk-list-wrap {
-  transition: height 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Consumers who want a smooth resize when results filter can add:
+     transition: height 200ms ease; */
   overflow: hidden;
 }
 
@@ -413,18 +438,4 @@ function selectCommand(cmd: Command) {
   border: 0;
 }
 
-@keyframes cmdk-overlay-in {
-  from { opacity: 0; }
-}
-@keyframes cmdk-overlay-out {
-  to { opacity: 0; }
-}
-@keyframes cmdk-content-in {
-  from { opacity: 0; transform: translateX(-50%) scale(0.98); }
-  to { opacity: 1; transform: translateX(-50%) scale(1); }
-}
-@keyframes cmdk-content-out {
-  from { opacity: 1; transform: translateX(-50%) scale(1); }
-  to { opacity: 0; transform: translateX(-50%) scale(0.98); }
-}
 </style>

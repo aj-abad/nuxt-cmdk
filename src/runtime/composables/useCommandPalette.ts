@@ -10,16 +10,17 @@ let previouslyFocusedElement: HTMLElement | null = null
 
 export function useCommandPalette() {
   const open = () => {
+    // SSR safety: palette is client-only. Don't mutate the singleton on the server.
+    if (typeof document === 'undefined') return
     if (isOpen.value) return
     resetSequence()
-    if (typeof document !== 'undefined') {
-      previouslyFocusedElement = document.activeElement as HTMLElement | null
-    }
+    previouslyFocusedElement = document.activeElement as HTMLElement | null
     isOpen.value = true
     pushShortcutBlocker()
   }
 
   const close = () => {
+    if (typeof document === 'undefined') return
     if (!isOpen.value) return
     isOpen.value = false
     popShortcutBlocker()

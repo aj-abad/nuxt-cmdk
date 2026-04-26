@@ -204,6 +204,60 @@ All visuals use CSS variables. Override at any level:
 }
 ```
 
+## Animations
+
+The palette ships with **no animations by default** — that's a deliberate choice so you can match your app's motion language and decide how to handle `prefers-reduced-motion` yourself.
+
+### Open / close
+
+`<CmdkPalette />` is built on Reka UI's Dialog, which sets `data-state="open"` and `data-state="closed"` on the overlay and content. Reka waits for any matching CSS animation (or transition) to finish before unmounting, so you only need CSS:
+
+```css
+.cmdk-overlay[data-state='open']  { animation: my-fade-in 150ms ease-out; }
+.cmdk-overlay[data-state='closed'] { animation: my-fade-out 100ms ease-in; }
+
+.cmdk-content[data-state='open']  { animation: my-scale-in 150ms ease-out; }
+.cmdk-content[data-state='closed'] { animation: my-scale-out 100ms ease-in; }
+
+@keyframes my-fade-in   { from { opacity: 0 } }
+@keyframes my-fade-out  { to   { opacity: 0 } }
+@keyframes my-scale-in  { from { opacity: 0; transform: translateX(-50%) scale(0.98) } }
+@keyframes my-scale-out { to   { opacity: 0; transform: translateX(-50%) scale(0.98) } }
+```
+
+### Result list resize
+
+When search filters the result list, the wrapper resizes instantly. To smooth it:
+
+```css
+.cmdk-list-wrap { transition: height 200ms ease; }
+```
+
+### Sequence indicator
+
+`<CmdkSequenceIndicator />` is wrapped in `<Transition name="cmdk-sequence">`. Drop in your own classes:
+
+```css
+.cmdk-sequence-enter-from,
+.cmdk-sequence-leave-to    { opacity: 0; transform: translateY(0.5rem); }
+.cmdk-sequence-enter-active,
+.cmdk-sequence-leave-active { transition: opacity 150ms ease, transform 150ms ease; }
+```
+
+### Loading indicator (per-command)
+
+While an async command's promise is pending, `<CmdkPalette />` renders a small SVG spinner. The spinner uses SMIL and animates regardless of `prefers-reduced-motion`. To replace it (or remove it), use the `running` slot:
+
+```vue
+<CmdkPalette>
+  <template #running="{ command }">
+    <span class="my-loader" :aria-label="`Running ${command.name}`" />
+  </template>
+</CmdkPalette>
+```
+
+The slot only renders for commands that are currently executing.
+
 ## Module options
 
 | Option | Type | Default | Description |

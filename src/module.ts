@@ -54,7 +54,10 @@ export default defineNuxtModule<ModuleOptions>({
       filePath: resolve('./runtime/components/CmdkShortcut.vue'),
     })
 
-    addPlugin(resolve('./runtime/plugin'))
+    // Client-only: the palette, listener, and registry mutations are all client-side.
+    // Excluding the plugin from the server bundle prevents the singleton state in
+    // commandRegistry from being mutated across SSR requests.
+    addPlugin({ src: resolve('./runtime/plugin'), mode: 'client' })
   },
 })
 

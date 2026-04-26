@@ -4,6 +4,13 @@ import { registerCommand, unregisterCommand, type Command } from './commandRegis
 export type CommandInput = Omit<Command, 'id'> & { id?: string }
 
 export function useCommands(commandsInput: MaybeRef<CommandInput[]>) {
+  // SSR safety: the palette, keyboard listener, and registry are all client-only.
+  // Bail early on the server so user setup() calls don't mutate the module-level
+  // registry singleton across requests.
+  if (typeof window === 'undefined') {
+    return { unregister: () => {} }
+  }
+
   let registeredIds: string[] = []
 
   const register = (cmds: CommandInput[]) => {

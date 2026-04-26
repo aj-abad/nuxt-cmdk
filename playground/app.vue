@@ -105,4 +105,44 @@ nav a.router-link-active {
   font-size: 0.875rem;
   cursor: pointer;
 }
+
+/* ---------------------------------------------------------------------------
+ * Palette animations — example of consumer-supplied motion.
+ *
+ * nuxt-cmdk ships with no animations by default. Reka emits data-state="open"
+ * and data-state="closed" on the overlay/content and waits for any matching
+ * CSS animation to complete before unmounting, so this is all that's needed.
+ * Wrap in @media (prefers-reduced-motion: no-preference) if you want to honour
+ * the user's motion preference.
+ * ------------------------------------------------------------------------- */
+.cmdk-overlay[data-state='open']   { animation: pg-fade-in 100ms ease-out; }
+.cmdk-overlay[data-state='closed'] { animation: pg-fade-out 100ms ease-in; }
+
+.cmdk-content[data-state='open']   { animation: pg-scale-in 100ms ease-out; }
+.cmdk-content[data-state='closed'] { animation: pg-scale-out 100ms ease-in; }
+
+@keyframes pg-fade-in   { from { opacity: 0 } }
+@keyframes pg-fade-out  { to   { opacity: 0 } }
+@keyframes pg-scale-in {
+  from { opacity: 0; transform: translateX(-50%) scale(0.98); }
+  to   { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+@keyframes pg-scale-out {
+  from { opacity: 1; transform: translateX(-50%) scale(1); }
+  to   { opacity: 0; transform: translateX(-50%) scale(0.98); }
+}
+
+/* Smooth resize when search filters the result list. */
+.cmdk-list-wrap { transition: height 200ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Sequence indicator (g … d) enter/leave. */
+.cmdk-sequence-enter-from,
+.cmdk-sequence-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(0.5rem) scale(0.95);
+}
+.cmdk-sequence-enter-active,
+.cmdk-sequence-leave-active {
+  transition: opacity 150ms ease, transform 150ms ease;
+}
 </style>
