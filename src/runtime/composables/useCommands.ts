@@ -30,6 +30,48 @@ export type CommandInput = Omit<Command, 'id'> & { id?: string }
  * // ⚠️ captures the function reference at compute time; won't update
  * action: isAdmin.value ? hardReset : softReset
  * ```
+ *
+ * @example Static array
+ * ```ts
+ * useCommands([
+ *   {
+ *     id: 'go-home',
+ *     name: 'Go to Home',
+ *     group: 'Navigation',
+ *     shortcut: 'g h',
+ *     action: () => navigateTo('/'),
+ *   },
+ *   {
+ *     id: 'save-doc',
+ *     name: 'Save Document',
+ *     shortcut: 'mod+s',
+ *     keywords: ['write', 'persist'],
+ *     action: async () => { await save() },
+ *   },
+ * ])
+ * ```
+ *
+ * @example Reactive set — commands toggle based on state
+ * ```ts
+ * const isDirty = ref(false)
+ * useCommands(computed(() => isDirty.value ? [{
+ *   id: 'save',
+ *   name: 'Save Changes',
+ *   shortcut: 'mod+s',
+ *   action: save,
+ * }] : []))
+ * ```
+ *
+ * @example Hidden shortcut (fires but doesn't appear in palette)
+ * ```ts
+ * useCommands([{
+ *   id: 'select-all',
+ *   name: 'Select All',
+ *   shortcut: 'mod+a',
+ *   hidden: true,
+ *   action: selectAll,
+ * }])
+ * ```
  */
 export function useCommands(commandsInput: MaybeRef<CommandInput[]>) {
   // SSR safety: the palette, keyboard listener, and registry are all client-only.

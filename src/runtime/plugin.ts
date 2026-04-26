@@ -50,10 +50,3 @@ export default defineNuxtPlugin((nuxtApp) => {
     })
   }
 })
-
-declare module '#app' {
-  interface RuntimeNuxtHooks {
-    'cmdk:error': (err: unknown, cmd: Command) => void
-    'cmdk:executed': (cmd: Command) => void
-  }
-}

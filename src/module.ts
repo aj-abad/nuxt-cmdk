@@ -1,5 +1,26 @@
 import { defineNuxtModule, addPlugin, addImports, addComponent, createResolver } from '@nuxt/kit'
+import type { Command } from './runtime/composables/commandRegistry'
+import type { CommandInput } from './runtime/composables/useCommands'
 
+export type { Command, CommandInput }
+
+/**
+ * Module options for `nuxt-cmdk`. Set under the `cmdk` key in `nuxt.config.ts`.
+ *
+ * @example
+ * ```ts
+ * // nuxt.config.ts
+ * export default defineNuxtConfig({
+ *   modules: ['nuxt-cmdk'],
+ *   cmdk: {
+ *     paletteShortcut: 'mod+k',
+ *     search: 'fuzzy',
+ *     sequenceTimeoutMs: 1500,
+ *     prefix: 'Cmdk',
+ *   },
+ * })
+ * ```
+ */
 export interface ModuleOptions {
   /** Component name prefix. Default: "Cmdk" → <CmdkPalette /> */
   prefix?: string
@@ -62,13 +83,24 @@ export default defineNuxtModule<ModuleOptions>({
 })
 
 declare module '@nuxt/schema' {
-  interface RuntimeConfig {
-    public: {
-      cmdk: {
-        search: 'fuzzy' | 'substring'
-        paletteShortcut: string | false
-        sequenceTimeoutMs: number
-      }
+  interface NuxtConfig {
+    cmdk?: ModuleOptions
+  }
+  interface NuxtOptions {
+    cmdk: ModuleOptions
+  }
+  interface PublicRuntimeConfig {
+    cmdk: {
+      search: 'fuzzy' | 'substring'
+      paletteShortcut: string | false
+      sequenceTimeoutMs: number
     }
+  }
+}
+
+declare module '#app' {
+  interface RuntimeNuxtHooks {
+    'cmdk:error': (err: unknown, cmd: Command) => void
+    'cmdk:executed': (cmd: Command) => void
   }
 }

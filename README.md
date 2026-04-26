@@ -275,6 +275,22 @@ pnpm dev:prepare   # generates .nuxt for typing
 pnpm dev           # runs the playground
 ```
 
+## Using with Claude Code (and other AI agents)
+
+This package ships an [`AGENTS.md`](./AGENTS.md) at its root with a dense, agent-friendly API summary — including behaviors that are easy to miss when scanning the source (e.g. `action` is excluded from structural diff, the `cmdk:toggle` id is reserved, exact-shortcut beats longer-sequence). Agents can read `node_modules/nuxt-cmdk/AGENTS.md` to load the API in one shot.
+
+If you'd like Claude Code to use the palette pattern by default in your project, drop something like this into your `CLAUDE.md`:
+
+```md
+## Command palette and shortcuts
+
+This project uses [nuxt-cmdk](https://www.npmjs.com/package/nuxt-cmdk).
+- Register commands with `useCommands([...])` in the component that owns them — do not maintain a central registry.
+- Always set an explicit `id` on each command.
+- Read reactive state inside the `action` body, not by swapping the function reference.
+- See `node_modules/nuxt-cmdk/AGENTS.md` for the full API.
+```
+
 ## Credits
 
 Pattern adapted from [arcon-cpo](https://github.com/Arcon/arcon-cpo)'s internal command system. Multi-step sequence semantics inspired by Linear.

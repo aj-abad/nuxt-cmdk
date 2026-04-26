@@ -1,5 +1,20 @@
 import { reactive, computed } from 'vue'
 
+/**
+ * A registered command — fires from the palette or via its shortcut.
+ *
+ * @example
+ * ```ts
+ * const cmd: Command = {
+ *   id: 'go-home',
+ *   name: 'Go to Home',
+ *   group: 'Navigation',
+ *   shortcut: 'g h',
+ *   keywords: ['index', 'root'],
+ *   action: () => navigateTo('/'),
+ * }
+ * ```
+ */
 export interface Command {
   /** Stable unique identifier. Required for reliable registration & debugging. */
   id: string
@@ -7,7 +22,12 @@ export interface Command {
   name: string
   /** Optional category, shown as a section header in the palette. */
   group?: string
-  /** Shortcut string. Single step ("mod+k") or sequence ("g d"). */
+  /**
+   * Shortcut string. Single step (`"mod+k"`) or sequence (`"g d"`).
+   *
+   * Tokens: `mod` (= `Cmd` on Mac, `Ctrl` elsewhere), `cmd`, `ctrl`, `shift`,
+   * `alt`, `option`. Join with `+` for modifiers, space for sequence steps.
+   */
   shortcut?: string
   /** Search aliases — useful for fuzzy matching ("home" → "Go to Dashboard"). */
   keywords?: string[]
